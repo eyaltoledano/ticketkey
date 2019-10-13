@@ -17,6 +17,13 @@
   </head>
 
   <body class="bg-gray-200 min-h-screen">
+    <div class="text-center pt-4">
+      <div class="">
+        <a id="brand" href="#" class="tracking-wider antialiased font-extrabold text-indigo-600 italic">ticketkey</a>
+      </div>
+        <% if logged_in? %><%= link_to "logout", logout_path, class: 'bg-transparent focus:outline-none text-grey-darker hover:text-black font-hair text-xs py-2 px-4 rounded' %><% end %>
+    </div>
+
     <%= yield %>
   </body>
 </html>

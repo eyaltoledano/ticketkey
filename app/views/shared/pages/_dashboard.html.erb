@@ -1,0 +1,24 @@
+<section class="mt-2">
+  <div class="container mx-auto">
+
+
+    <div class="max-w-4xl w-full lg:flex mx-auto my-auto shadow-lg mb-4">
+      <div class="border border-grey-light lg:border lg:border lg:border-grey-light bg-white rounded-b lg:rounded-r p-5 flex flex-col justify-between leading-normal min-w-full">
+        <div class="mb-10">
+          <div class="text-black font-bold text-xl mb-2 text-3xl text-grey-500 font-semibold text-center">Welcome back, <%= @brand.name %></div>
+          <p class="text-grey-darker text-base text-center">Some more useful text for logged in users coming soon.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+
+  <div class="container mx-auto my-auto">
+    <div class="text-center">
+        <%= link_to "Create a new event", new_event_path, class: 'shadow bg-indigo-400 hover:bg-indigo-500 focus:shadow-outline focus:outline-none text-white font-bold py-4 px-8 rounded', id: "new-event-button" %>
+    </div>
+  </div>
+
+</section>
