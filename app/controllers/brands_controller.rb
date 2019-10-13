@@ -23,12 +23,21 @@ class BrandsController < ApplicationController
     @brand = Brand.new(brand_params)
     if @brand.save
       respond_to do |format|
-        format.html { redirect_to :show }
+        format.html {
+          session[:brand_id] = @brand.id
+          redirect_to root_path
+        }
         format.json { render json: @brand }
       end
     else
+
       respond_to do |format|
-        format.html { render :new }
+        format.html {
+          flash[:errors] = @brand.errors.full_messages
+          render :new
+        }
+        binding.pry
+
         format.json { render json: @brand.errors }
       end
     end
@@ -66,6 +75,6 @@ class BrandsController < ApplicationController
   private
 
   def brand_params
-    params.require(:brand).permit(:name, :description, :email, :password_digest)
+    params.require(:brand).permit(:name, :email, :password)
   end
 end

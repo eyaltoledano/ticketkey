@@ -1,0 +1,14 @@
+
+<% if flash[:errors] %>
+<div class="bg-transparent text-center pb-4 lg:px-4">
+  <div class="p-2 bg-red-500 items-center text-red-100 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
+    <span class="font-medium text-sm mx-5 text-left flex-auto">
+      <ul>
+        <% flash[:errors].each do |error_message| %>
+          <li><%= error_message %></li>
+        <% end %>
+      </ul>
+    </span>
+  </div>
+</div>
+<% end %>

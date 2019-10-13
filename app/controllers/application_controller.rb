@@ -1,20 +1,20 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_user
+  helper_method :current_brand
   helper_method :logged_in?
-  helper_method :current_user
+  helper_method :set_current_brand
   helper_method :redirect_if_not_logged_in
 
-  def current_user
-    User.find(session[:user_id])
+  def current_brand
+    Brand.find(session[:brand_id])
   end
 
   def logged_in?
-    session[:user_id].present?
+    session[:brand_id].present?
   end
 
-  def set_current_user
+  def set_current_brand
     if logged_in?
-      @user = User.find(session[:user_id])
+      @brand = Brand.find(session[:brand_id])
     end
   end
 

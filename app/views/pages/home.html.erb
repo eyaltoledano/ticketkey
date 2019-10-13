@@ -1,5 +1,5 @@
 <% if logged_in? %>
-  <%= render partial: 'shared/pages/home_logged_in', locals: { user: @user } %>
+  <%= render partial: 'shared/pages/home_logged_in', locals: { brand: @brand } %>
 <% else %>
   <%= render partial: 'shared/pages/home_logged_out' %>
 <% end %>
