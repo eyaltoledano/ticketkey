@@ -2,7 +2,7 @@ class EventSerializer < ActiveModel::Serializer
   has_one :venue
   belongs_to :brand, serializer: EventBrandSerializer
 
-  attributes :id, :name, :category, :date_start, :date_end, :total_available_tickets
+  attributes :id, :name, :category, :date_start, :date_end, :total_available_tickets, :total_tickets, :percent_sold
   attribute :available_tickets, if: :available_tickets?
 
   def available_tickets

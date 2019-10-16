@@ -2,6 +2,7 @@
 $(() => {
   $('#content').hide()
   listenBrowseEvents();
+  prepareModal();
 });
 
 function listenBrowseEvents() {
@@ -46,6 +47,8 @@ class Evvent {
     this.date_start = object.date_start;
     this.date_end = object.date_end;
     this.total_available_tickets = object.total_available_tickets;
+    this.total_tickets = object.total_tickets;
+    this.percent_sold = object.percent_sold;
   }
 }
 
@@ -55,7 +58,10 @@ Evvent.prototype.eventCard = function() {
       <div class="max-w-sm rounded overflow-hidden shadow-lg mx-2" data-event-id="${this.id}">
         <a class="mx-auto my-auto" id="card-${this.id}-flip">
           <div class="bg-gray-900 px-1 py-3 relative">
-            <p class="text-gray-200 antialiased text-2xl font-bold p-2">${this.name}</p>
+            <p class="text-gray-200 antialiased text-2xl font-bold p-2">
+              ${this.name}
+              <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 float-right">${this.percent_sold}% sold</span>
+            </p>
           </div>
           <img class="w-full" src="https://picsum.photos/200/180?random=${this.id}&blur=3&grayscale">
         </a>
@@ -78,7 +84,7 @@ Evvent.prototype.eventCardFlipSide = function() {
              Ends on ${this.date_end}
            </p>
            <p class="text-gray-700 text-base">
-             ${this.total_available_tickets} tickets left
+             ${this.total_available_tickets} tickets left (${this.percent_sold}% sold)
            </p>
          </div>
          <div class="px-6 py-4">
@@ -87,4 +93,50 @@ Evvent.prototype.eventCardFlipSide = function() {
        </div>
      </div>
   `
+}
+
+
+// modal
+
+function prepareModal() {
+  var openmodal = document.querySelectorAll('.modal-open')
+  for (var i = 0; i < openmodal.length; i++) {
+    openmodal[i].addEventListener('click', function(event){
+  	event.preventDefault()
+  	toggleModal()
+    })
+  }
+
+  let overlay = document.querySelector('.modal-overlay')
+  overlay.addEventListener('click', toggleModal)
+
+  var closemodal = document.querySelectorAll('.modal-close')
+  var modalCancel = document.querySelector('.modal-cancel')
+  var closemodalArray = Array.from(closemodal)
+  closemodalArray.push(modalCancel)
+  for (var i = 0; i < closemodalArray.length; i++) {
+    closemodalArray[i].addEventListener('click', toggleModal)
+  }
+
+  document.onkeydown = function(evt) {
+    evt = evt || window.event
+    var isEscape = false
+    if ("key" in evt) {
+  	isEscape = (evt.key === "Escape" || evt.key === "Esc")
+    } else {
+  	isEscape = (evt.keyCode === 27)
+    }
+    if (isEscape && document.body.classList.contains('modal-active')) {
+  	toggleModal()
+    }
+  };
+
+
+  function toggleModal () {
+    var body = document.querySelector('body')
+    var modal = document.querySelector('.modal')
+    modal.classList.toggle('opacity-0')
+    modal.classList.toggle('pointer-events-none')
+    body.classList.toggle('modal-active')
+  }
 }
