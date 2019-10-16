@@ -15,12 +15,12 @@ class EventsController < ApplicationController
     end
   end
 
-  def new
-    # ensure to build new event from brand
-  end
+  # def new
+  #   # ensure to build new event from brand
+  # end
 
   def create
-    @brand = Brand.find(event_params[:brand_id])
+    set_current_brand
     @event = @brand.events.build(event_params)
     if @event.save
       respond_to do |format|
@@ -66,6 +66,6 @@ class EventsController < ApplicationController
   private
 
   def event_params
-    params.require(:event).permit(:name, :category, :date_start, :date_end, :brand_id)
+    params.require(:event).permit(:name, :category, :date_start, :date_end, :brand_id, :venue_id)
   end
 end

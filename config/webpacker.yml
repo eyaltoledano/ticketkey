@@ -11,10 +11,10 @@ default: &default
 
   # Additional paths webpack should lookup modules
   # ['app/assets', 'engine/foo/app/assets']
-  resolved_paths: []
+  resolved_paths: ['app/javascript/css', 'app/assets']
 
   # Reload manifest.json on all requests so we reload latest compiled packs
-  cache_manifest: false
+  cache_manifest: true
 
   # Extract and emit a css file
   extract_css: true
@@ -53,14 +53,14 @@ development:
   compile: true
 
   # Verifies that correct packages and versions are installed by inspecting package.json, yarn.lock, and node_modules
-  check_yarn_integrity: true
+  check_yarn_integrity: false
 
   # Reference: https://webpack.js.org/configuration/dev-server/
   dev_server:
     https: false
     host: localhost
     port: 3035
-    public: localhost:3035
+    public: localhost:3000
     hmr: false
     # Inline should be set to true if using HMR
     inline: true

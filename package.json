@@ -7,6 +7,7 @@
     "tailwindcss": "~1.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/custom-forms": "^0.2.1",
     "mini-css-extract-plugin": "^0.8.0",
     "webpack-dev-server": "^3.8.2"
   }

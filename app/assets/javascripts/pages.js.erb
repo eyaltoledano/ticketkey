@@ -3,21 +3,37 @@ $(() => {
   $('#content').hide()
   listenBrowseEvents();
   prepareModal();
+
+  $('img').on("error", function() {
+    $(this).attr('src', '/images/missing.jpg');
+  });
 });
 
 function listenBrowseEvents() {
-    $('#browse-events-button').on('click', function(event) {
+  $('#browse-events-button').on('click', function(event) {
     event.preventDefault();
     getEvents();
   });
 };
 
+function listenForNewForm() {
+  $('#new-event-form').submit(function(event) {
+    event.preventDefault();
+    var values = $(this).serialize();
+    var posting = $.post('/events', values)
+    posting.done(function(data) {
+
+    })
+  });
+};
+
+
 function flipOnClick(classed_event) {
   $(`#card-${classed_event.id}-flip`).on("click", function(event) {
     event.preventDefault();
 
-    $(`#event-${classed_event.id}`).after(classed_event.eventCardFlipSide())
-    $(`#event-${classed_event.id}`).hide()
+    $(`#event-${classed_event.id}-front`).after(classed_event.eventCardFlipSide())
+    $(`#event-${classed_event.id}-front`).hide()
   })
 }
 
@@ -54,7 +70,7 @@ class Evvent {
 
 Evvent.prototype.eventCard = function() {
   return `
-    <div class="w-1/3 my-1 index" id="event-${this.id}">
+    <div class="w-1/3 my-1 index" id="event-${this.id}-front">
       <div class="max-w-sm rounded overflow-hidden shadow-lg mx-2" data-event-id="${this.id}">
         <a class="mx-auto my-auto" id="card-${this.id}-flip">
           <div class="bg-gray-900 px-1 py-3 relative">
@@ -72,9 +88,11 @@ Evvent.prototype.eventCard = function() {
 
 Evvent.prototype.eventCardFlipSide = function() {
   return `
-    <div class="w-1/3 my-1 show">
-       <div class="max-w-sm rounded overflow-hidden shadow-lg mx-2" data-event-id="${this.id}">
-       <img class="w-full" src="https://picsum.photos/200/100?grayscale&random=${this.id}">
+    <div class="w-1/3 my-1" id="event-${this.id}-back">
+       <div class="max-w-sm rounded overflow-hidden shadow-lg mx-2">
+       <a href="/events/${this.id}" id="card-${this.id}-reflip">
+         <img class="w-full" src="https://picsum.photos/200/100?grayscale&random=${this.id}" alt="A placeholder image">
+        </a>
          <div class="px-6 py-4">
            <div class="font-bold text-xl mb-2"><a href="/events/${this.id}">${this.name}</a></div>
            <p class="text-gray-700 text-base">
@@ -91,6 +109,8 @@ Evvent.prototype.eventCardFlipSide = function() {
            <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">#${this.category}</span>
          </div>
        </div>
+
+
      </div>
   `
 }
@@ -140,3 +160,13 @@ function prepareModal() {
     body.classList.toggle('modal-active')
   }
 }
+
+// Process
+// 1. set up a submission listener and prevent the form from being submitted
+// 2. Grab the items from the form fields
+// 3. Create a new event object from the form fields
+// 4. Feed the event object hash through to the api post request (post /events)
+// 5. Ensure the controller will set up the correct association, sends OK
+// 6. When OK from API, call getEvents() if it hasn't already and unshift the new object into the DOM as an .eventCard
+// 7. Clear the form (reset it)
+// 8. Trigger closed modal upon the form being submitted
