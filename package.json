@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@rails/webpacker": "^4.0.7",
+    "flip": "github:nnattawat/flip",
     "tailwindcss": "~1.0.0"
   },
   "devDependencies": {

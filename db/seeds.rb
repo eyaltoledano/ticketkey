@@ -34,19 +34,19 @@ brands = Brand.create(
       name: 'Immobiliaire',
       description: 'A real estate group purchased by the Corleone family.',
       email: 'mike@corleone.com',
-      password_digest: 'test',
+      password: 'test',
     },
     {
       name: 'Coca Cola',
       description: 'A beverage company that is more than 100 years old.',
       email: 'james@cocacola.com',
-      password_digest: 'test',
+      password: 'test',
     },
     {
       name: 'Nike',
       description: 'One of the most recognized athletics brand worldwide.',
       email: 'jim@nike.com',
-      password_digest: 'test',
+      password: 'test',
     },
   ]
 )
@@ -73,6 +73,48 @@ events = brands.collect do |brand|
         category: 'Opera',
         date_start: (date + 4),
         date_end: (date + 5),
+        venue_id: 3
+      },
+      {
+        name: 'Fourth Event',
+        category: 'Opera',
+        date_start: (date + 6),
+        date_end: (date + 7),
+        venue_id: 1
+      },
+      {
+        name: 'Fifth Event',
+        category: 'Opera',
+        date_start: (date + 8),
+        date_end: (date + 9),
+        venue_id: 2
+      },
+      {
+        name: 'Sixth Event',
+        category: 'Opera',
+        date_start: (date + 10),
+        date_end: (date + 11),
+        venue_id: 3
+      },
+      {
+        name: 'Seventh Event',
+        category: 'Opera',
+        date_start: (date + 12),
+        date_end: (date + 13),
+        venue_id: 1
+      },
+      {
+        name: 'Eighteth Event',
+        category: 'Opera',
+        date_start: (date + 14),
+        date_end: (date + 15),
+        venue_id: 2
+      },
+      {
+        name: 'Nineth Event',
+        category: 'Opera',
+        date_start: (date + 16),
+        date_end: (date + 17),
         venue_id: 3
       },
     ]
