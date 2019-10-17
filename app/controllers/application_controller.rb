@@ -15,6 +15,8 @@ class ApplicationController < ActionController::Base
   def set_current_brand
     if logged_in?
       @brand = Brand.find(session[:brand_id])
+    else
+      redirect_if_not_logged_in
     end
   end
 

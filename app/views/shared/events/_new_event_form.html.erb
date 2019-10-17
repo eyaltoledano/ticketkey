@@ -54,9 +54,14 @@
     </div>
 
     <div class="">
-      <%= f.submit "Create event", class: 'shadow bg-indigo-400 hover:bg-indigo-500 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded float-right', data: { "disable-with": "Creating event..." } %>
+      <input name="authenticity_token"
+               type="hidden"
+               value="<%= form_authenticity_token %>"/>
+      <%= f.submit "Create event", class: 'shadow bg-indigo-400 hover:bg-indigo-500 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded float-right' %>
     </div>
 
   </div>
 
 <% end %>
+
+<!--  data: { "disable-with": "Creating event..." } !-->

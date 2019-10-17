@@ -1,9 +1,13 @@
-// Hide the content section upon document being ready.
 $(() => {
   $('#content').hide()
-  listenBrowseEvents();
+  $.ajaxSetup({
+    headers: {
+      'X-CSRF-Token': Rails.csrfToken()
+    }
+  });
   prepareModal();
-
+  listenForNewForm()
+  listenBrowseEvents();
   $('img').on("error", function() {
     $(this).attr('src', '/images/missing.jpg');
   });
@@ -16,13 +20,36 @@ function listenBrowseEvents() {
   });
 };
 
+function fillFormOnNewFormClick() {
+  $('#new_event_button').on("click", function(event) {
+    $('#formDiv')
+  })
+}
+
 function listenForNewForm() {
-  $('#new-event-form').submit(function(event) {
+  $('form#new_event').submit(function(event) {
     event.preventDefault();
     var values = $(this).serialize();
-    var posting = $.post('/events', values)
-    posting.done(function(data) {
+    var posting = $.post('/events', values);
 
+    posting.done(function(data) {
+      // clear the form and reset it
+      // can't just call .reset() on $('form#new_event') because .reset() is a form method, not a jquery method
+
+      $('form#new_event').each(function() {
+        this.reset();
+      })
+      var newEvent = new Evvent(data);
+      if ($(`#eventList`).children().length == 0) {
+        getEvents();
+      }
+      $('#eventList').prepend(newEvent.eventCard());
+      flipOnClick(newEvent);
+      var body = document.querySelector('body')
+      var modal = document.querySelector('.modal')
+      modal.classList.toggle('opacity-0')
+      modal.classList.toggle('pointer-events-none')
+      body.classList.toggle('modal-active')
     })
   });
 };
@@ -32,8 +59,8 @@ function flipOnClick(classed_event) {
   $(`#card-${classed_event.id}-flip`).on("click", function(event) {
     event.preventDefault();
 
-    $(`#event-${classed_event.id}-front`).after(classed_event.eventCardFlipSide())
-    $(`#event-${classed_event.id}-front`).hide()
+    $(`#event-${classed_event.id}-front`).after(classed_event.eventCardFlipSide());
+    $(`#event-${classed_event.id}-front`).hide();
   })
 }
 
@@ -76,7 +103,7 @@ Evvent.prototype.eventCard = function() {
           <div class="bg-gray-900 px-1 py-3 relative">
             <p class="text-gray-200 antialiased text-2xl font-bold p-2">
               ${this.name}
-              <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 float-right">${this.percent_sold}% sold</span>
+              <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 float-right">${this.percent_sold}</span>
             </p>
           </div>
           <img class="w-full" src="https://picsum.photos/200/180?random=${this.id}&blur=3&grayscale">
@@ -102,7 +129,7 @@ Evvent.prototype.eventCardFlipSide = function() {
              Ends on ${this.date_end}
            </p>
            <p class="text-gray-700 text-base">
-             ${this.total_available_tickets} tickets left (${this.percent_sold}% sold)
+             ${this.total_available_tickets} tickets left (${this.percent_sold})
            </p>
          </div>
          <div class="px-6 py-4">
@@ -131,6 +158,7 @@ function prepareModal() {
   overlay.addEventListener('click', toggleModal)
 
   var closemodal = document.querySelectorAll('.modal-close')
+  var modalCancel = document.querySelector('.modal-cancel')
   var modalCancel = document.querySelector('.modal-cancel')
   var closemodalArray = Array.from(closemodal)
   closemodalArray.push(modalCancel)
@@ -163,10 +191,9 @@ function prepareModal() {
 
 // Process
 // 1. set up a submission listener and prevent the form from being submitted
-// 2. Grab the items from the form fields
-// 3. Create a new event object from the form fields
-// 4. Feed the event object hash through to the api post request (post /events)
-// 5. Ensure the controller will set up the correct association, sends OK
-// 6. When OK from API, call getEvents() if it hasn't already and unshift the new object into the DOM as an .eventCard
+// 2. Grab the items from the form fields using serialize()
+// 3. Feed the serialized object hash through to the api post request (post /events)
+// 4. Ensure the controller will set up the correct association, sends OK
+// 5. When OK from API, call getEvents() if it hasn't already and unshift the new object into the DOM as an .eventCard
 // 7. Clear the form (reset it)
 // 8. Trigger closed modal upon the form being submitted

@@ -15,23 +15,14 @@ class EventsController < ApplicationController
     end
   end
 
-  # def new
-  #   # ensure to build new event from brand
-  # end
-
   def create
     set_current_brand
     @event = @brand.events.build(event_params)
     if @event.save
-      respond_to do |format|
-        format.html { redirect_to :show }
-        format.json { render json: @event }
-      end
+      # binding.pry
+      render json: @event, status: 201
     else
-      respond_to do |format|
-        format.html { render :new }
-        format.json { render json: @event.errors }
-      end
+      render json: @event.errors, status: 400
     end
   end
 

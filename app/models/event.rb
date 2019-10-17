@@ -5,6 +5,7 @@ class Event < ApplicationRecord
 
   def available_tickets
     tickets = []
+    # return nil if self.tickets.nil?
     self.tickets.each do |ticket|
       # Can control what the available_ticket looks like here if needed:
       #
@@ -30,9 +31,10 @@ class Event < ApplicationRecord
   end
 
   def percent_sold
+    return "Need tickets!" if total_tickets == 0
     sold = total_tickets - total_available_tickets
     percent_sold = sold.percent_of(total_tickets)
-    percent_sold.round()
+    return "#{percent_sold.round()}% sold"
   end
 
 
