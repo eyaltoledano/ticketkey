@@ -175,10 +175,10 @@ Evvent.prototype.eventCard = function() {
           <div class="bg-gray-900 px-1 py-3 relative">
             <p class="text-gray-200 antialiased text-xl font-bold p-2">
               ${this.name}
-              <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 float-right">${this.percent_sold}</span>
+              <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 float-right">${this.percent_sold}% sold</span>
             </p>
           </div>
-          <img class="w-full" src="https://picsum.photos/200/180?random=${this.id}&blur=3&grayscale">
+          <img class="w-full" src="https://picsum.photos/200/180?random=${this.id}&grayscale">
         </a>
       </div>
     </div>
@@ -201,7 +201,7 @@ Evvent.prototype.eventCardFlipSide = function() {
              Ends on ${this.date_end}
            </p>
            <p class="text-gray-700 text-base">
-             ${this.total_available_tickets} tickets left (${this.percent_sold})
+             ${this.total_available_tickets} tickets left (${this.percent_sold}% sold)
            </p>
          </div>
          <div class="px-6 py-4">

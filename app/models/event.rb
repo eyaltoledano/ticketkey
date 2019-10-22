@@ -31,10 +31,10 @@ class Event < ApplicationRecord
   end
 
   def percent_sold
-    return "Need tickets!" if total_tickets == 0
+    return 0 if total_tickets == 0
     sold = total_tickets - total_available_tickets
     percent_sold = sold.percent_of(total_tickets)
-    return "#{percent_sold.round()}% sold"
+    return percent_sold.round()
   end
 
 
