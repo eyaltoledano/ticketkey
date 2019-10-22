@@ -1,3 +1,17 @@
 <div id="formDiv">
-  <%= render partial: 'shared/events/new_event_form' %>
+  <%= render partial: 'shared/events/new_event_form', locals: {event: @event} %>
 </div>
+
+<!-- This JS method needs to be created in the /views/ folder because render doesn't work in the assets path, and we don't want to move pages.js to the views folder. This is a good trade-off. -->
+
+<script type="text/javascript">
+  $(() => {
+    function fillNewFormDiv() {
+      var form = "<%= j (render partial: 'shared/events/new_event_form', locals: { event: @event } ) %>"
+      $('#formDiv').empty()
+      $('form#new_event').unbind('submit');
+      $('#formDiv').append(form)
+      // listenForNewFormSubmission()
+    }
+  })
+</script>

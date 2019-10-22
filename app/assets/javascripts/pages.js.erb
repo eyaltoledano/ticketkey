@@ -1,59 +1,100 @@
+// Do some setup at document ready. Hide the main content div (which is empty). Prevent the unrecognized resource error upon form submits. Add the modal html and interaction listeners. Listen for a 'new event' button click to refresh the form within it. Listen for the 'brwose events' button click to populate the eventList. Replace any broken images from lorem picsum with missing.jpg
+
 $(() => {
   $('#content').hide()
+  $('#sort-events-button').hide()
+
   $.ajaxSetup({
     headers: {
       'X-CSRF-Token': Rails.csrfToken()
     }
   });
-  prepareModal();
-  listenForNewForm()
-  listenBrowseEvents();
+
   $('img').on("error", function() {
     $(this).attr('src', '/images/missing.jpg');
   });
+
+  prepareModal();
+  listenBrowseEventsButtonClick();
+  listenForNewEventButtonClick();
+  listenForNewFormSubmission();
 });
 
-function listenBrowseEvents() {
+
+
+
+
+// In the listenBrowseEventsButtonClick() function, when the browse events button is clicked, we prevent the default behaviour and then call getEvents(). If the eventList already contains content, then empty it first before calling getEvents()
+
+function listenBrowseEventsButtonClick() {
   $('#browse-events-button').on('click', function(event) {
     event.preventDefault();
-    getEvents();
+    // Don't repopulate the index if one already exists, but do reload it to grab any other items that may have been created not on the page.
+    if ($(`#eventList`).children().length == 0) {
+      getEvents();
+    } else {
+      $(`#eventList`).empty()
+      getEvents();
+    }
   });
 };
 
-function fillFormOnNewFormClick() {
-  $('#new_event_button').on("click", function(event) {
-    $('#formDiv')
+// The getEvents() function first collects the brand's id which is stored in the data-id attribute of the #browseeventsbutton and interpolates it into the AJAX get request pointing to the brand's show page.
+
+// The brand's (many) events are grabbed from the successful response. From there, it iterates over each event by triggering a callback and creating a new Evvent (named so to prevent conflict issues with javascript's Event) object for each event in the array. I
+
+// In each iteration, eventCard() is called on the newly created Evvent, which is a prototype method that spits out the card front's HTML with interpolated values both in the child nodes and adding a event-${this.id}-front id to each event card, which will be used by flipOnClick(), which is called on the event.
+
+// Lastly, the #content div is toggled to show, which shows the whole (newly populated) div with all event cards.
+
+function getEvents() {
+  var id = $('#browse-events-button').data("id")
+  $.ajax({
+    url: `http://localhost:3000/brands/${id}.json`,
+    method: 'get',
+    success: function(response) {
+      var events = response["events"]
+      var sorted_events = []
+      events.forEach(function(event) {
+        var classed_event = new Evvent(event)
+        sorted_events.push(classed_event)
+        $('#eventList').append(classed_event.eventCard())
+        flipOnClick(classed_event);
+      })
+
+      $('#content').show()
+      $('#sort-events-button').show()
+
+      sorted_events.sort(function(first_event, second_event) {
+        if (first_event.percent_sold < second_event.percent_sold) {
+          return -1
+        }
+
+        if (first_event.percent_sold > second_event.percent_sold) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+
+      // Do a join on the event name to ensure that the sort is sorting the whole word and not just the first word (and then resplit)
+
+      function listenForSortEventButtonClick() {
+        $('#sort-events-button').on('click', function(event) {
+          event.preventDefault();
+          $('#eventList').empty()
+          sorted_events.forEach(function(event) {
+            $('#eventList').append(event.eventCard())
+          })
+        })
+      }
+
+      listenForSortEventButtonClick();
+    }
   })
 }
 
-function listenForNewForm() {
-  $('form#new_event').submit(function(event) {
-    event.preventDefault();
-    var values = $(this).serialize();
-    var posting = $.post('/events', values);
-
-    posting.done(function(data) {
-      // clear the form and reset it
-      // can't just call .reset() on $('form#new_event') because .reset() is a form method, not a jquery method
-
-      $('form#new_event').each(function() {
-        this.reset();
-      })
-      var newEvent = new Evvent(data);
-      if ($(`#eventList`).children().length == 0) {
-        getEvents();
-      }
-      $('#eventList').prepend(newEvent.eventCard());
-      flipOnClick(newEvent);
-      var body = document.querySelector('body')
-      var modal = document.querySelector('.modal')
-      modal.classList.toggle('opacity-0')
-      modal.classList.toggle('pointer-events-none')
-      body.classList.toggle('modal-active')
-    })
-  });
-};
-
+// The flipOnClick() function changes the content of the clicked card with an alternative version of the card that display it's show information. It is inserted first right after the existing card front, and then the card front is hidden. This enables the card fliping UX to work regardless of the card position.
 
 function flipOnClick(classed_event) {
   $(`#card-${classed_event.id}-flip`).on("click", function(event) {
@@ -64,24 +105,7 @@ function flipOnClick(classed_event) {
   })
 }
 
-function getEvents() {
-  var id = $('#browse-events-button').data("id")
-  $.ajax({
-    url: `http://localhost:3000/brands/${id}.json`,
-    method: 'get',
-    success: function(response) {
-      var events = response["events"]
-      events.forEach(function(event) {
-        var classed_event = new Evvent(event)
-        $('#eventList').append(classed_event.eventCard())
-        flipOnClick(classed_event);
-      })
-
-      $('#content').show()
-    }
-  })
-}
-
+// The constructor object for each Evvent
 class Evvent {
   constructor(object) {
     this.id = object.id;
@@ -95,13 +119,61 @@ class Evvent {
   }
 }
 
+//  Listens for a 'new event' button click and calls fillNewFormDiv() on it. The fillNewFormDiv() function lives in the _new_event_form_div.html.erb partials in the /views/ folder because render doesn't work in the assets path, and we don't want to move pages.js to the views folder. It's good trade-off.
+
+function listenForNewEventButtonClick() {
+  $('#new_event_button').on("click", function(event) {
+    fillNewFormDiv()
+  })
+}
+
+// fillNewFormDiv() sets the 'form' variables to the rendered partial using escaped javascript. It then empties the current #formDiv and unbinds the listenForNewFormSubmission() listener connected to the form in the formDiv that was just emptied.
+
+// Finally it appends the form to the #formDiv again and creates a new listener by calling listenForNewFormSubmission()
+
+// listenForNewFormSubmission() listens for a form submission of the #new_event form. Upon submission, it prevents the default behaviour of the form. It serializes the values of the form inputs and posts a POST request to /events to create a new event with the serialized values.
+
+// When the request is done, the 'data' returned by the response is used to instantiate a new Evvent object. The form is also reset. Note that you can't just call .reset() on $('form#new_event') because .reset() is a form method, not a jquery method.
+
+// Once the new event is created, a check verifies if the eventList already contains children (events). If it doesn't, getEvents() is called to populate it before prepending the newly created event to the events. Prepending unshifts the new event at the top of the array, as expected of a good user experience. The flipOnClick() function is called on the event to set up a listener for its show information to be accessible, and the modal is then closed.
+
+// The form is not emptied here because fillNewFormDiv() deals with that, and it will be called anytime the new_event_button is clicked, guaranteeing a fresh form every time.
+
+function listenForNewFormSubmission() {
+  $('form#new_event').submit(function(event) {
+    var values = $(this).serialize();
+    var posting = $.post('/events', values);
+
+    posting.done(function(data) {
+      $('form#new_event').each(function() {
+        this.reset();
+      })
+      var newEvent = new Evvent(data);
+      if ($(`#eventList`).children().length == 0) {
+        getEvents();
+      } else {
+        $('#eventList').prepend(newEvent.eventCard());
+      }
+      flipOnClick(newEvent);
+      var body = document.querySelector('body')
+      var modal = document.querySelector('.modal')
+      modal.classList.toggle('opacity-0')
+      modal.classList.toggle('pointer-events-none')
+      body.classList.toggle('modal-active')
+    })
+    event.preventDefault();
+  });
+};
+
+// Prototype functions which spit out the front and back cards.
+
 Evvent.prototype.eventCard = function() {
   return `
     <div class="w-1/3 my-1 index" id="event-${this.id}-front">
       <div class="max-w-sm rounded overflow-hidden shadow-lg mx-2" data-event-id="${this.id}">
         <a class="mx-auto my-auto" id="card-${this.id}-flip">
           <div class="bg-gray-900 px-1 py-3 relative">
-            <p class="text-gray-200 antialiased text-2xl font-bold p-2">
+            <p class="text-gray-200 antialiased text-xl font-bold p-2">
               ${this.name}
               <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 float-right">${this.percent_sold}</span>
             </p>
@@ -143,7 +215,7 @@ Evvent.prototype.eventCardFlipSide = function() {
 }
 
 
-// modal
+// Prepares the modal, adds listeners for opening/closing the modal either from the close button, pressing ESC or using the 'cancel' button in the new event form.
 
 function prepareModal() {
   var openmodal = document.querySelectorAll('.modal-open')
@@ -158,7 +230,6 @@ function prepareModal() {
   overlay.addEventListener('click', toggleModal)
 
   var closemodal = document.querySelectorAll('.modal-close')
-  var modalCancel = document.querySelector('.modal-cancel')
   var modalCancel = document.querySelector('.modal-cancel')
   var closemodalArray = Array.from(closemodal)
   closemodalArray.push(modalCancel)
@@ -179,6 +250,7 @@ function prepareModal() {
     }
   };
 
+// toggleModal() makes the modal fade away based on the above listeners.
 
   function toggleModal () {
     var body = document.querySelector('body')
@@ -188,12 +260,3 @@ function prepareModal() {
     body.classList.toggle('modal-active')
   }
 }
-
-// Process
-// 1. set up a submission listener and prevent the form from being submitted
-// 2. Grab the items from the form fields using serialize()
-// 3. Feed the serialized object hash through to the api post request (post /events)
-// 4. Ensure the controller will set up the correct association, sends OK
-// 5. When OK from API, call getEvents() if it hasn't already and unshift the new object into the DOM as an .eventCard
-// 7. Clear the form (reset it)
-// 8. Trigger closed modal upon the form being submitted
